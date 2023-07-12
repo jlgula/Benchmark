@@ -12,7 +12,7 @@ import scala.util.Random
 object SequenceTest  {
   @State(Scope.Benchmark)
   class SequenceTest {
-    var size: Int = 10000000
+    var size: Int = 1000000
     val bufferSize: Int = 4096
 
     var data: Array[Byte] = _
@@ -83,7 +83,7 @@ object SequenceTest  {
       var position: Int = 0
       while (position < data.length) {
         val writeSize = Math.min(data.length - position, buffer.length)
-        data.slice(position, writeSize).copyToArray(buffer, 0, writeSize)
+        data.slice(position, position + writeSize).copyToArray(buffer, 0, writeSize)
         output.write(buffer, 0, writeSize)
         position += writeSize
       }
@@ -99,7 +99,7 @@ object SequenceTest  {
       var position: Int = 0
       while (position < data.length) {
         val writeSize = Math.min(data.length - position, buffer.length)
-        data.slice(position, writeSize).copyToArray(buffer, 0, writeSize)
+        data.slice(position, position + writeSize).copyToArray(buffer, 0, writeSize)
         output.write(buffer, 0, writeSize)
         position += writeSize
       }
@@ -115,9 +115,8 @@ object SequenceTest  {
       var position: Int = 0
       while (position < data.length) {
         val writeSize = Math.min(data.length - position, buffer.length)
-        data.slice(position, writeSize).copyToArray(buffer, 0, writeSize)
+        data.slice(position, position + writeSize).copyToArray(buffer, 0, writeSize)
         output.write(buffer, 0, writeSize)
-
         position += writeSize
       }
     }
