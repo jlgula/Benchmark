@@ -12,21 +12,13 @@ import scala.util.Random
 object SequenceTest  {
   @State(Scope.Benchmark)
   class SequenceTest {
-    var size: Int = 1000000
-    val bufferSize: Int = 4096
+    private val size: Int = 1000000
+    private val bufferSize: Int = 4096
 
-    var data: Array[Byte] = _
-    var dataAsSeq: IndexedSeq[Byte] = _
-    var dataAsVector: Vector[Byte] = _
-    var dataAsArraySeq: ArraySeq[Byte] = _
-
-    @Setup
-    def prepare(): Unit = {
-      data = new Random().nextBytes(size)
-      dataAsSeq = data.toIndexedSeq
-      dataAsVector = Vector(data: _*)
-      dataAsArraySeq = ArraySeq(data: _*)
-    }
+    private val data: Array[Byte] = new Random().nextBytes(size)
+    private val dataAsSeq: IndexedSeq[Byte] = data.toIndexedSeq
+    private val dataAsVector: Vector[Byte] = Vector(data: _*)
+    private val dataAsArraySeq: ArraySeq[Byte] = ArraySeq(data: _*)
 
     @Benchmark
     @BenchmarkMode(Array(Mode.AverageTime))
@@ -71,7 +63,6 @@ object SequenceTest  {
         position += writeSize
       }
     }
-
 
     @Benchmark
     @BenchmarkMode(Array(Mode.AverageTime))
@@ -121,7 +112,7 @@ object SequenceTest  {
       }
     }
 
-    class NullOutputStream(hole: Blackhole) extends OutputStream {
+    private class NullOutputStream(hole: Blackhole) extends OutputStream {
       override def write(b: Int): Unit = {
         hole.consume(b)
       }
