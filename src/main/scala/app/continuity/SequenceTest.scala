@@ -127,7 +127,7 @@ object SequenceTest  {
       val output = new NullOutputStream(hole)
       val buffer = new Array[Byte](bufferSize)
       val data = dataAsSeq
-      data.sliding(bufferSize).foreach(bytes => {
+      data.sliding(bufferSize, bufferSize).foreach(bytes => {
         bytes.copyToArray(buffer)
         output.write(buffer, 0, bytes.length)
       })

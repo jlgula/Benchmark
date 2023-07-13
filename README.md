@@ -51,7 +51,7 @@ in microseconds on my machine (iMac 3.3 GHz, Ventura 13.4.1, Scala 2.13.5, JDK-1
 | arrayWrite         | 1.734         | 17.406         | 331.405         |                    72.471 |
 | baselineWrite      | 0.271          | 0.802          | 5.894           |                    36.397 |
 | sequenceWrite      | 9.040          | 88.639          | 1310.345          |                    71.612 |
-| slidingSequenceWrite        | 327633.306          | 3261447.140          | 33343846.372          |                  8740.842 |
+| slidingSequenceWrite        | 417.760          | 4161.987          | 41025.725          |                  8198.805 |
 | unbufferedArrayWrite        | 0.003          | 0.003          | 0.003          |             0.003 |
 | vectorWrite        | 89.690          | 1045.637          | 16393.666          |                  1208.015 |
 
