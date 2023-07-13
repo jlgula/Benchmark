@@ -1,10 +1,15 @@
 # Benchmark related to StackOverflow question: [Is there a way to use Scala sequences with performance comparable to Java arrays?](https://github.com/jlgula/Benchmark/new/main?readme=1)
 
 This benchmark copies data from an array or Scala sequence into an intermediate buffer
-and from there to an output stream. My original, naive tests showed better performance
-from arrays than sequences, hence I raised the question to StackOverflow. In more
-refined tests, the array version is still faster, particularly compared to sourcing
-from a vector.
+and from there to an output stream. The original question was why writing immutable sequences
+to an OutputStream is slower than keeping data in a mutable arrays. Since OutputStream
+writes expect an array argument, when writing a sequence, it has to be buffered through
+an array, requiring an extra copy. But that copy from a sequence is significantly slower than the same
+copy coming from an array. 
+
+The copy is obviously not needed if the source is known to
+be an array as it can be written directly to the stream but that means propagating mutable
+data through the system and hoping nobody changes it.
 
 Following the suggestion of [stefanobaghino](https://stackoverflow.com/users/3314107/stefanobaghino), I rewrote the benchmark tests to use the
 [Java Microbenchmark Harness (JMH)](https://github.com/openjdk/jmh) with the [SBT Plugin](https://github.com/sbt/sbt-jmh)
@@ -13,17 +18,26 @@ The original code did a double copy:
 1) Copy from data in an array or sequence into the intermediate buffer
 2) Copy from the intermediate buffer into ByteOutputStream buffers.
 
-I created a NullOutputStream to eliminate the second copy. This class sends 
+Since I really only interested in the first copy,
+I created a NullOutputStream to eliminate the second copy. NullOutputStream sends 
 all output stream writes to the JMH Blackhole mechanism
 to make sure they don't get dead code eliminated out of existance but are basically ignored.
-I added a baselineWrite test that doesn't do any copy but does invoke the stream write.
+I added a baselineWrite test that doesn't do the source copy but does invoke the stream write.
+I added another version that writes directly from the array to the output stream
+eliminating the extra buffer copy. Using the Blackhole OutputStream makes this
+more or less instantaneous and so the benchmark just measures a single write call to
+NullOutputStream.
+
+Somebody suggested using sliding rather than slice to access portions of the source
+sequence, eliminating the while loop. Using sliding from a sequence still requires the copy to an array for the OutputStream write
+and sliding seems to be very slow.
 
 Run the benchmark via SBT with something like (3 warmups, 3 iterations):
 ```agsl
 Jmh/run -i 3 -wi 3 -f1 -t1 .*Write.*
 ```
 
-Varying the parameters of the data size and the size of the intermediate buffer gives the following results
+The default values in the code are data size 1M and buffer size 4096. Varying the parameters of the data size and the size of the intermediate buffer gives the following results
 in microseconds on my machine (iMac 3.3 GHz, Ventura 13.4.1, Scala 2.13.5, JDK-17.0.4):
 
 | Method             | Data size = 100K | Data size = 1M | Data size = 10M | Data size 1M = bufferSize |

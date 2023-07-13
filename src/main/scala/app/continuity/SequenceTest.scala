@@ -53,7 +53,6 @@ object SequenceTest  {
     @BenchmarkMode(Array(Mode.AverageTime))
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     def unbufferedArrayWrite(hole: Blackhole): Unit = {
-      val buffer = new Array[Byte](bufferSize)
       val output = new NullOutputStream(hole)
       output.write(data)
     }
