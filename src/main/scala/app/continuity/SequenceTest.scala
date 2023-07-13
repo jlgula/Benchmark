@@ -52,6 +52,15 @@ object SequenceTest  {
     @Benchmark
     @BenchmarkMode(Array(Mode.AverageTime))
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
+    def unbufferedArrayWrite(hole: Blackhole): Unit = {
+      val buffer = new Array[Byte](bufferSize)
+      val output = new NullOutputStream(hole)
+      output.write(data)
+    }
+
+    @Benchmark
+    @BenchmarkMode(Array(Mode.AverageTime))
+    @OutputTimeUnit(TimeUnit.MICROSECONDS)
     def arraySliceWrite(hole: Blackhole): Unit = {
       val buffer = new Array[Byte](bufferSize)
       val output = new NullOutputStream(hole)
@@ -110,6 +119,19 @@ object SequenceTest  {
         output.write(buffer, 0, writeSize)
         position += writeSize
       }
+    }
+
+    @Benchmark
+    @BenchmarkMode(Array(Mode.AverageTime))
+    @OutputTimeUnit(TimeUnit.MICROSECONDS)
+    def slidingSequenceWrite(hole: Blackhole): Unit = {
+      val output = new NullOutputStream(hole)
+      val buffer = new Array[Byte](bufferSize)
+      val data = dataAsSeq
+      data.sliding(bufferSize).foreach(bytes => {
+        bytes.copyToArray(buffer)
+        output.write(buffer, 0, bytes.length)
+      })
     }
 
     private class NullOutputStream(hole: Blackhole) extends OutputStream {
