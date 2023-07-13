@@ -18,15 +18,19 @@ The original code did a double copy:
 1) Copy from data in an array or sequence into the intermediate buffer
 2) Copy from the intermediate buffer into ByteOutputStream buffers.
 
-Since I really only interested in the first copy,
+Since I'm really only interested in the first copy,
 I created a NullOutputStream to eliminate the second copy. NullOutputStream sends 
 all output stream writes to the JMH Blackhole mechanism
 to make sure they don't get dead code eliminated out of existance but are basically ignored.
-I added a baselineWrite test that doesn't do the source copy but does invoke the stream write.
+
+I added a baselineWrite test that doesn't do the source copy but does invoke the stream write
+repeatedly for the same number of calls as the ones that do the copy.
+
 I added another version that writes directly from the array to the output stream
 eliminating the extra buffer copy. Using the Blackhole OutputStream makes this
 more or less instantaneous and so the benchmark just measures a single write call to
-NullOutputStream.
+NullOutputStream. In a real system, the 2nd copy to the output stream is still required
+so using arrays is not free.
 
 Somebody suggested using sliding rather than slice to access portions of the source
 sequence, eliminating the while loop. Using sliding from a sequence still requires the copy to an array for the OutputStream write
